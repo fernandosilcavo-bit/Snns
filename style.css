@@ -260,11 +260,14 @@ button:disabled {
     border: 2px solid var(--border-color);
     overflow: hidden;
     box-shadow: inset 0 4px 8px var(--shadow-dark);
+    min-height: 70vh; /* Increased from default */
+    height: 80vh; /* Explicit height for larger map */
 }
 
 #gameMapObject {
     width: 100%;
     height: 100%;
+    min-height: 70vh; /* Increased minimum height */
     display: block;
     filter: brightness(0.9) contrast(1.1);
 }
@@ -277,6 +280,45 @@ button:disabled {
     height: 100%;
     pointer-events: none;
     z-index: 10;
+}
+
+/* Enhanced map styling for better visibility */
+#mapContainer:hover {
+    border-color: var(--accent-gold);
+    box-shadow: 0 0 15px var(--shadow-gold), inset 0 4px 8px var(--shadow-dark);
+    transition: all 0.3s ease;
+}
+
+/* Map zoom controls */
+.map-controls {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.map-control-btn {
+    width: 40px;
+    height: 40px;
+    background: rgba(45, 45, 45, 0.9);
+    border: 1px solid var(--accent-gold);
+    border-radius: 6px;
+    color: var(--accent-gold);
+    font-size: 1.2rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.map-control-btn:hover {
+    background: var(--accent-gold);
+    color: var(--primary-bg);
+    transform: scale(1.1);
 }
 
 /* CONTROLS SIDEBAR */

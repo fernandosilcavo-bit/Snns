@@ -177,7 +177,7 @@ button:disabled {
         "header header"
         "map controls"
         "notifications notifications";
-    grid-template-columns: 1fr 350px;
+    grid-template-columns: 1fr 400px;
     grid-template-rows: auto 1fr auto;
     min-height: 100vh;
     gap: 15px;
@@ -260,6 +260,7 @@ button:disabled {
     border: 2px solid var(--border-color);
     overflow: hidden;
     box-shadow: inset 0 4px 8px var(--shadow-dark);
+    min-height: 600px;
 }
 
 #gameMapObject {
@@ -431,6 +432,11 @@ select:focus {
     opacity: 0.8;
 }
 
+.country-flag {
+    font-size: 2rem;
+    margin-bottom: 10px;
+}
+
 /* WAR MODAL SPECIFIC */
 #warModal .modal-content {
     border-color: var(--accent-red);
@@ -453,7 +459,311 @@ select:focus {
     border-left: 3px solid var(--accent-gold);
 }
 
+/* COUNTRY MENU SYSTEM - Age of History Style */
+.country-menu {
+    position: fixed;
+    background: linear-gradient(145deg, var(--secondary-bg), var(--tertiary-bg));
+    border: 2px solid var(--accent-gold);
+    border-radius: 15px;
+    padding: 20px;
+    box-shadow: 0 10px 30px var(--shadow-dark);
+    z-index: 2000;
+    width: 350px;
+    max-height: 80vh;
+    overflow-y: auto;
+    backdrop-filter: blur(10px);
+}
+
+.country-menu-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid var(--border-color);
+}
+
+.country-menu-header .country-flag {
+    font-size: 2.5rem;
+    margin-right: 15px;
+}
+
+.country-menu-header .country-info {
+    flex: 1;
+}
+
+.country-menu-header h3 {
+    font-family: 'Cinzel', serif;
+    color: var(--accent-gold);
+    font-size: 1.4rem;
+    margin-bottom: 5px;
+}
+
+.country-menu-header .capital {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.close-menu {
+    background: var(--accent-red);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.close-menu:hover {
+    background: #a00000;
+}
+
+.leader-section {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+    padding: 15px;
+    background: rgba(26, 26, 26, 0.5);
+    border-radius: 10px;
+    border: 1px solid var(--border-color);
+}
+
+.leader-portrait {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    overflow: hidden;
+    margin-right: 15px;
+    border: 2px solid var(--accent-gold);
+}
+
+.leader-portrait img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.leader-info h4 {
+    font-family: 'Cinzel', serif;
+    color: var(--accent-gold);
+    font-size: 1.2rem;
+    margin-bottom: 5px;
+}
+
+.government-type {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    font-style: italic;
+}
+
+.country-stats {
+    margin-bottom: 20px;
+}
+
+.stat-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    margin: 5px 0;
+    background: rgba(26, 26, 26, 0.3);
+    border-radius: 6px;
+    border-left: 3px solid var(--accent-gold);
+}
+
+.stat-label {
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+.stat-value {
+    font-weight: bold;
+    color: var(--accent-gold);
+}
+
+.government-section {
+    margin-bottom: 20px;
+    padding: 15px;
+    background: rgba(26, 26, 26, 0.3);
+    border-radius: 10px;
+    border: 1px solid var(--border-color);
+}
+
+.government-section label {
+    display: block;
+    font-family: 'Cinzel', serif;
+    color: var(--accent-gold);
+    font-weight: 600;
+    margin-bottom: 10px;
+}
+
+.government-effects {
+    margin-top: 10px;
+}
+
+.effects-list {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 5px;
+}
+
+.effect {
+    padding: 5px 8px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    text-align: center;
+    font-weight: 600;
+}
+
+.effect.positive {
+    background: rgba(0, 255, 0, 0.2);
+    color: #90EE90;
+    border: 1px solid rgba(0, 255, 0, 0.3);
+}
+
+.effect.negative {
+    background: rgba(255, 0, 0, 0.2);
+    color: #FFB6C1;
+    border: 1px solid rgba(255, 0, 0, 0.3);
+}
+
+.action-buttons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.action-btn {
+    padding: 12px 8px;
+    font-size: 0.9rem;
+    text-transform: none;
+    letter-spacing: 0;
+    margin: 0;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+}
+
+.recruit-btn {
+    background: linear-gradient(145deg, #2d5a2d, #1e3f1e);
+    border-color: #4a7c4a;
+}
+
+.recruit-btn:hover {
+    background: linear-gradient(145deg, #4a7c4a, #2d5a2d);
+}
+
+.economy-btn {
+    background: linear-gradient(145deg, #5a4d2d, #3f351e);
+    border-color: #7c6b4a;
+}
+
+.economy-btn:hover {
+    background: linear-gradient(145deg, #7c6b4a, #5a4d2d);
+}
+
+.defense-btn {
+    background: linear-gradient(145deg, #4d4d5a, #35353f);
+    border-color: #6b6b7c;
+}
+
+.defense-btn:hover {
+    background: linear-gradient(145deg, #6b6b7c, #4d4d5a);
+}
+
+.diplomacy-btn {
+    background: linear-gradient(145deg, #2d4d5a, #1e353f);
+    border-color: #4a6b7c;
+}
+
+.diplomacy-btn:hover {
+    background: linear-gradient(145deg, #4a6b7c, #2d4d5a);
+}
+
+.war-btn {
+    background: linear-gradient(145deg, var(--accent-red), #6b0000);
+    border-color: #ff4444;
+}
+
+.war-btn:hover {
+    background: linear-gradient(145deg, #a00000, var(--accent-red));
+}
+
+.intel-btn {
+    background: linear-gradient(145deg, #4d2d5a, #351e3f);
+    border-color: #6b4a7c;
+}
+
+.intel-btn:hover {
+    background: linear-gradient(145deg, #6b4a7c, #4d2d5a);
+}
+
+.historical-info {
+    padding: 15px;
+    background: rgba(26, 26, 26, 0.3);
+    border-radius: 10px;
+    border: 1px solid var(--border-color);
+}
+
+.historical-info h4 {
+    font-family: 'Cinzel', serif;
+    color: var(--accent-gold);
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+.historical-info p {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    line-height: 1.4;
+    text-align: justify;
+}
+
+/* TOOLTIP SYSTEM */
+.country-tooltip {
+    position: fixed;
+    background: linear-gradient(145deg, var(--secondary-bg), var(--tertiary-bg));
+    border: 2px solid var(--accent-gold);
+    border-radius: 8px;
+    padding: 10px;
+    box-shadow: 0 5px 15px var(--shadow-dark);
+    z-index: 3000;
+    pointer-events: none;
+    max-width: 200px;
+}
+
+.tooltip-header {
+    font-family: 'Cinzel', serif;
+    color: var(--accent-gold);
+    font-weight: 600;
+    font-size: 1rem;
+    margin-bottom: 5px;
+    text-align: center;
+}
+
+.tooltip-content {
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+    line-height: 1.3;
+}
+
 /* RESPONSIVE DESIGN */
+@media (max-width: 1400px) {
+    #gameScreen {
+        grid-template-columns: 1fr 350px;
+    }
+    
+    .country-menu {
+        width: 300px;
+    }
+}
+
 @media (max-width: 1200px) {
     #gameScreen {
         grid-template-areas: 
@@ -462,6 +772,11 @@ select:focus {
             "controls"
             "notifications";
         grid-template-columns: 1fr;
+    }
+    
+    .country-menu {
+        width: 90vw;
+        max-width: 400px;
     }
 }
 
@@ -484,6 +799,19 @@ select:focus {
     }
     
     #countryList {
+        grid-template-columns: 1fr;
+    }
+    
+    .country-menu {
+        width: 95vw;
+        padding: 15px;
+    }
+    
+    .action-buttons {
+        grid-template-columns: 1fr;
+    }
+    
+    .effects-list {
         grid-template-columns: 1fr;
     }
 }
@@ -523,5 +851,232 @@ select:focus {
 
 .glow-effect {
     animation: glow 2s infinite;
+}
+
+/* MAP HOVER EFFECTS */
+#gameMapObject svg path:hover {
+    filter: brightness(1.2) saturate(1.5);
+    transition: all 0.3s ease;
+}
+
+/* LOADING ANIMATIONS */
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+.loading {
+    animation: pulse 1.5s infinite;
+}
+
+/* VICTORY SCREEN STYLES */
+.victory-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(45deg, rgba(212, 175, 55, 0.9), rgba(139, 0, 0, 0.9));
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    backdrop-filter: blur(10px);
+}
+
+.victory-content {
+    text-align: center;
+    color: white;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+}
+
+.victory-content h1 {
+    font-family: 'Cinzel', serif;
+    font-size: 4rem;
+    margin-bottom: 2rem;
+    animation: glow 2s infinite;
+}
+
+.victory-content p {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+/* ENHANCED MAP STYLES */
+#mapContainer {
+    position: relative;
+    overflow: visible;
+}
+
+#mapContainer::before {
+    content: '';
+    position: absolute;
+    top: -5px;
+    left: -5px;
+    right: -5px;
+    bottom: -5px;
+    background: linear-gradient(45deg, var(--accent-gold), var(--accent-red), var(--accent-blue), var(--accent-gold));
+    border-radius: 15px;
+    z-index: -1;
+    animation: borderGlow 3s linear infinite;
+}
+
+@keyframes borderGlow {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+/* IMPROVED BUTTON STYLES */
+.action-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.action-btn:disabled:hover {
+    transform: none;
+    background: var(--secondary-bg);
+}
+
+/* ENHANCED NOTIFICATION STYLES */
+#notificationList li {
+    animation: slideInRight 0.5s ease-out;
+    position: relative;
+    overflow: hidden;
+}
+
+#notificationList li::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(212, 175, 55, 0.3), transparent);
+    animation: shimmer 2s ease-in-out;
+}
+
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(100%);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes shimmer {
+    0% { left: -100%; }
+    100% { left: 100%; }
+}
+
+/* ENHANCED COUNTRY SELECTION */
+.country-option {
+    position: relative;
+    overflow: hidden;
+}
+
+.country-option::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s ease;
+}
+
+.country-option:hover::after {
+    left: 100%;
+}
+
+/* IMPROVED MODAL ANIMATIONS */
+.modal {
+    animation: modalFadeIn 0.3s ease-out;
+}
+
+.modal-content {
+    animation: modalSlideIn 0.3s ease-out;
+}
+
+@keyframes modalFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes modalSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-50px) scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* ENHANCED LEADER PORTRAITS */
+.leader-portrait {
+    position: relative;
+    overflow: hidden;
+}
+
+.leader-portrait::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(45deg, transparent, rgba(212, 175, 55, 0.3), transparent);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.leader-section:hover .leader-portrait::before {
+    opacity: 1;
+}
+
+/* IMPROVED GAME INFO DISPLAY */
+#gameInfo p {
+    position: relative;
+    overflow: hidden;
+}
+
+#gameInfo p::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(212, 175, 55, 0.1), transparent);
+    animation: infoShimmer 3s ease-in-out infinite;
+}
+
+@keyframes infoShimmer {
+    0%, 100% { left: -100%; }
+    50% { left: 100%; }
+}
+
+/* ENHANCED STAT ROWS */
+.stat-row {
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.stat-row:hover {
+    background: rgba(212, 175, 55, 0.1);
+    transform: translateX(5px);
+}
+
+.stat-row:hover .stat-value {
+    color: white;
+    text-shadow: 0 0 10px var(--accent-gold);
 }
 

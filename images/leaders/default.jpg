@@ -1,0 +1,20 @@
+# Default Leader Image Placeholder
+# This file serves as a placeholder for leader portraits
+# In a real implementation, this would be an actual image file (JPG/PNG)
+
+# Leader portraits should be:
+# - 60x60 pixels minimum
+# - Square aspect ratio
+# - Historical figures from the 1930s-1940s era
+# - High contrast for visibility
+
+# Suggested images to add:
+# - hitler.jpg (Adolf Hitler)
+# - stalin.jpg (Josef Stalin)  
+# - churchill.jpg (Winston Churchill)
+# - roosevelt.jpg (Franklin D. Roosevelt)
+# - mussolini.jpg (Benito Mussolini)
+# - franco.jpg (Francisco Franco)
+# - blum.jpg (Léon Blum)
+# - chamberlain.jpg (Neville Chamberlain)
+# - moscicki.jpg (Ignacy Mościcki)

@@ -37,6 +37,563 @@ let victoryConditions = {
 };
 
 // ============================================================================
+// DOM Elementleri - Gelişmiş Sistem
+// ============================================================================
+const startScreen = document.getElementById('startScreen');
+const gameScreen = document.getElementById('gameScreen');
+const playerNameInput = document.getElementById('playerNameInput');
+const startGameButton = document.getElementById('startGameButton');
+const welcomeMessage = document.getElementById('welcomeMessage');
+const turnCounter = document.getElementById('turnCounter');
+const playerCoinElement = document.getElementById('playerCoin');
+const playerUnitsReadyElement = document.getElementById('playerUnitsReady');
+const playerCountryNameElement = document.getElementById('playerCountryName');
+const buyUnitButton = document.getElementById('buyUnitButton');
+const nextTurnButton = document.getElementById('nextTurnButton');
+const mapContainer = document.getElementById('mapContainer');
+const gameMapSVG = document.getElementById('gameMapObject');
+const unitCountsOverlay = document.getElementById('unitCountsOverlay');
+const notificationsList = document.getElementById('notificationList');
+
+const countrySelectionModal = document.getElementById('countrySelectionModal');
+const countryListDiv = document.getElementById('countryList');
+const selectCountryButton = document.getElementById('selectCountryButton');
+
+const targetCountrySelect = document.getElementById('targetCountrySelect');
+const declareWarButton = document.getElementById('declareWarButton');
+
+// Yeni Modal Elementleri
+const countryInfoModal = document.getElementById('countryInfoModal');
+const closeCountryInfoButton = document.getElementById('closeCountryInfoButton');
+const governmentChangeModal = document.getElementById('governmentChangeModal');
+
+// Global Variables for Enhanced Features
+let selectedCountryForInfo = null;
+let currentGovernmentChangeCountry = null;
+let territoryClickEnabled = true;
+
+// ============================================================================
+// Gelişmiş Ülke Bilgi Sistemi
+// ============================================================================
+
+function showCountryInfo(countryId) {
+    const country = countriesData[countryId];
+    if (!country) return;
+
+    selectedCountryForInfo = countryId;
+    
+    // Temel bilgileri doldur
+    document.getElementById('countryInfoTitle').textContent = `🏛️ ${country.name}`;
+    document.getElementById('countryFullName').textContent = country.name;
+    document.getElementById('countryLeader').textContent = country.leader || 'Bilinmiyor';
+    document.getElementById('countryGovernment').textContent = country.governmentType || 'Bilinmiyor';
+    document.getElementById('countryIdeology').textContent = country.ideology || 'Bilinmiyor';
+    document.getElementById('countryCapital').textContent = getCapitalName(country.capital) || 'Bilinmiyor';
+    document.getElementById('countryPopulation').textContent = formatNumber(country.population) || 'Bilinmiyor';
+    document.getElementById('countryCoins').textContent = country.coins || 0;
+    document.getElementById('countryUnits').textContent = getTotalUnitsForCountry(countryId);
+    document.getElementById('countryEra').textContent = country.era || '1936';
+    
+    // İstatistikleri güncelle
+    updateCountryStats(country);
+    
+    // Güç seviyesini göster
+    const powerLevel = document.getElementById('powerLevel');
+    powerLevel.textContent = getPowerLevelText(country.type);
+    powerLevel.className = `power-${country.type}`;
+    
+    // Bayrak ve lider portresini ayarla
+    setupCountryVisuals(country);
+    
+    // Toprakları listele
+    displayCountryTerritories(country);
+    
+    // Eylem butonlarını ayarla
+    setupCountryActions(countryId);
+    
+    countryInfoModal.style.display = 'block';
+}
+
+function updateCountryStats(country) {
+    // İstatistik barlarını güncelle
+    const stats = [
+        { id: 'stability', value: country.stability || 50 },
+        { id: 'warSupport', value: country.warSupport || 50 },
+        { id: 'industry', value: country.industry || 50 },
+        { id: 'military', value: country.military || 50 }
+    ];
+    
+    stats.forEach(stat => {
+        const bar = document.getElementById(stat.id + 'Bar');
+        const valueSpan = document.getElementById(stat.id + 'Value');
+        
+        if (bar && valueSpan) {
+            setTimeout(() => {
+                bar.style.width = stat.value + '%';
+                valueSpan.textContent = stat.value + '%';
+            }, 300);
+        }
+    });
+}
+
+function getPowerLevelText(type) {
+    const levels = {
+        'superpower': 'Süper Güç',
+        'major_power': 'Büyük Güç',
+        'regional_power': 'Bölgesel Güç',
+        'minor_power': 'Küçük Güç'
+    };
+    return levels[type] || 'Bilinmiyor';
+}
+
+function getCapitalName(capitalId) {
+    // Başkent isimlerini döndür (basitleştirilmiş)
+    const capitals = {
+        'RU3': 'Moskova',
+        'DE30': 'Berlin',
+        'UKI1': 'Londra',
+        'FR10': 'Paris',
+        'ITE4': 'Roma',
+        'PL12': 'Varşova',
+        'TR10': 'Ankara'
+        // Daha fazla başkent eklenebilir
+    };
+    return capitals[capitalId] || capitalId;
+}
+
+function formatNumber(num) {
+    if (!num) return '0';
+    return num.toLocaleString('tr-TR');
+}
+
+function setupCountryVisuals(country) {
+    const flagDiv = document.getElementById('countryFlag');
+    const portraitDiv = document.getElementById('leaderPortrait');
+    
+    // Bayrak (placeholder)
+    flagDiv.innerHTML = `<div style="color: ${country.color}; font-size: 24px;">🏳️</div>`;
+    
+    // Lider portresi (placeholder)
+    portraitDiv.innerHTML = `<div style="color: #d4af37; font-size: 14px; text-align: center;">${country.leader || 'Lider'}</div>`;
+}
+
+function displayCountryTerritories(country) {
+    const territoriesDiv = document.getElementById('countryTerritories');
+    territoriesDiv.innerHTML = '';
+    
+    country.nuts2.forEach(territoryId => {
+        const territoryDiv = document.createElement('div');
+        territoryDiv.className = 'territory-item';
+        territoryDiv.textContent = `${territoryId} (${regionUnits[territoryId] || 0} birim)`;
+        territoriesDiv.appendChild(territoryDiv);
+    });
+}
+
+function setupCountryActions(countryId) {
+    const declareWarBtn = document.getElementById('declareWarFromInfo');
+    const changeGovBtn = document.getElementById('changeGovernmentType');
+    
+    // Savaş ilan etme butonu
+    declareWarBtn.onclick = () => {
+        if (countryId !== playerCountryId) {
+            targetCountryIdForWar = countryId;
+            executeWarDeclaration();
+            countryInfoModal.style.display = 'none';
+        }
+    };
+    
+    // Hükümet değiştirme butonu (sadece oyuncu ülkesi için)
+    if (countryId === playerCountryId) {
+        changeGovBtn.style.display = 'block';
+        changeGovBtn.onclick = () => {
+            showGovernmentChangeModal(countryId);
+        };
+    } else {
+        changeGovBtn.style.display = 'none';
+    }
+}
+
+// ============================================================================
+// Hükümet Değiştirme Sistemi
+// ============================================================================
+
+function showGovernmentChangeModal(countryId) {
+    currentGovernmentChangeCountry = countryId;
+    governmentChangeModal.style.display = 'block';
+    
+    // Mevcut hükümeti vurgula
+    const currentGov = countriesData[countryId].governmentType;
+    document.querySelectorAll('.government-option').forEach(option => {
+        option.classList.remove('selected');
+        if (option.dataset.type === currentGov) {
+            option.classList.add('selected');
+        }
+    });
+}
+
+function changeGovernment(newGovType, cost) {
+    const country = countriesData[currentGovernmentChangeCountry];
+    
+    if (country.coins < cost) {
+        addNotification(`❌ Hükümet değişikliği için yeterli altın yok! (${cost} altın gerekli)`);
+        return false;
+    }
+    
+    const oldGov = country.governmentType;
+    country.governmentType = newGovType;
+    country.coins -= cost;
+    
+    // Hükümet tipine göre bonuslar uygula
+    applyGovernmentBonuses(country, newGovType);
+    
+    addNotification(`🏛️ ${country.name} hükümeti ${oldGov}'den ${newGovType}'e değişti!`);
+    updateUI();
+    
+    return true;
+}
+
+function applyGovernmentBonuses(country, govType) {
+    // Eski bonusları temizle (basitleştirilmiş)
+    
+    // Yeni bonusları uygula
+    switch(govType) {
+        case 'Democracy':
+            country.stability = Math.min(100, (country.stability || 50) + 15);
+            country.warSupport = Math.max(0, (country.warSupport || 50) - 10);
+            break;
+        case 'Monarchy':
+            country.stability = Math.min(100, (country.stability || 50) + 10);
+            break;
+        case 'Fascism':
+            country.military = Math.min(100, (country.military || 50) + 20);
+            country.stability = Math.max(0, (country.stability || 50) - 5);
+            break;
+        case 'Communism':
+            country.industry = Math.min(100, (country.industry || 50) + 15);
+            break;
+    }
+}
+
+// ============================================================================
+// Gelişmiş Harita Etkileşimi
+// ============================================================================
+
+function setupMapInteraction() {
+    gameMapSVG.addEventListener('load', function() {
+        const svgDoc = gameMapSVG.contentDocument;
+        if (!svgDoc) return;
+        
+        // Tüm path elementlerine click event ekle
+        const paths = svgDoc.querySelectorAll('path');
+        paths.forEach(path => {
+            path.style.cursor = 'pointer';
+            path.addEventListener('click', function(e) {
+                if (!territoryClickEnabled) return;
+                
+                const regionId = this.getAttribute('data-nuts2') || this.getAttribute('id');
+                if (regionId) {
+                    handleTerritoryClick(regionId, e);
+                }
+            });
+            
+            // Hover efektleri
+            path.addEventListener('mouseenter', function() {
+                if (territoryClickEnabled) {
+                    this.style.filter = 'brightness(1.3)';
+                }
+            });
+            
+            path.addEventListener('mouseleave', function() {
+                this.style.filter = 'brightness(1)';
+            });
+        });
+    });
+}
+
+function handleTerritoryClick(regionId, event) {
+    // Hangi ülkeye ait olduğunu bul
+    const countryId = findCountryByRegion(regionId);
+    
+    if (countryId) {
+        // Sağ tık ile ülke bilgilerini göster
+        if (event.button === 2 || event.ctrlKey) {
+            event.preventDefault();
+            showCountryInfo(countryId);
+            return;
+        }
+        
+        // Sol tık ile savaş modu
+        if (currentAttackMode && selectedAttackingRegionNutsId) {
+            handleAttackOnRegion(regionId);
+        } else {
+            // Normal tık ile ülke seçimi veya bilgi
+            showCountryInfo(countryId);
+        }
+    }
+}
+
+function findCountryByRegion(regionId) {
+    for (const [countryId, country] of Object.entries(countriesData)) {
+        if (country.nuts2.includes(regionId)) {
+            return countryId;
+        }
+    }
+    return null;
+}
+
+// ============================================================================
+// Gelişmiş AI Sistemi
+// ============================================================================
+
+// AI Kişilik Tipleri - Geliştirilmiş
+const AI_PERSONALITIES_ENHANCED = {
+    AGGRESSIVE: { 
+        warChance: 0.35, 
+        expansionFocus: 0.9, 
+        defenseFocus: 0.2,
+        diplomacyFocus: 0.1,
+        economicFocus: 0.3
+    },
+    DEFENSIVE: { 
+        warChance: 0.1, 
+        expansionFocus: 0.2, 
+        defenseFocus: 0.8,
+        diplomacyFocus: 0.6,
+        economicFocus: 0.5
+    },
+    BALANCED: { 
+        warChance: 0.2, 
+        expansionFocus: 0.5, 
+        defenseFocus: 0.5,
+        diplomacyFocus: 0.4,
+        economicFocus: 0.6
+    },
+    EXPANSIONIST: { 
+        warChance: 0.3, 
+        expansionFocus: 0.95, 
+        defenseFocus: 0.1,
+        diplomacyFocus: 0.2,
+        economicFocus: 0.4
+    }
+};
+
+// Gelişmiş AI karar verme sistemi
+function makeAdvancedAIDecisions(countryId) {
+    const country = countriesData[countryId];
+    const personality = AI_PERSONALITIES_ENHANCED[country.personality] || AI_PERSONALITIES_ENHANCED.BALANCED;
+    
+    const decisions = {
+        economic: [],
+        military: [],
+        diplomatic: []
+    };
+    
+    // Ekonomik kararlar
+    if (Math.random() < personality.economicFocus) {
+        if (country.coins >= UNIT_COST * 2) {
+            decisions.economic.push('buyUnit');
+        }
+        if (country.coins >= UNIT_COST * 5 && Math.random() < 0.3) {
+            decisions.economic.push('developIndustry');
+        }
+    }
+    
+    // Askeri kararlar
+    if (Math.random() < personality.warChance) {
+        const potentialTargets = findPotentialTargets(countryId);
+        if (potentialTargets.length > 0) {
+            const target = selectBestTarget(countryId, potentialTargets);
+            if (target) {
+                decisions.military.push({
+                    type: 'declareWar',
+                    target: target,
+                    priority: calculateWarPriority(countryId, target)
+                });
+            }
+        }
+    }
+    
+    return decisions;
+}
+
+function findPotentialTargets(countryId) {
+    const country = countriesData[countryId];
+    const targets = [];
+    
+    // Komşu ülkeleri bul
+    const neighbors = findNeighboringCountries(countryId);
+    
+    for (const neighborId of neighbors) {
+        if (neighborId !== countryId && !warDeclarations[countryId]?.includes(neighborId)) {
+            const neighbor = countriesData[neighborId];
+            const strength = calculateCountryStrength(neighborId);
+            const myStrength = calculateCountryStrength(countryId);
+            
+            // Sadece daha zayıf ülkelere saldır (AI daha akıllı)
+            if (myStrength > strength * 1.2) {
+                targets.push({
+                    id: neighborId,
+                    strength: strength,
+                    attractiveness: calculateTargetAttractiveness(countryId, neighborId)
+                });
+            }
+        }
+    }
+    
+    return targets.sort((a, b) => b.attractiveness - a.attractiveness);
+}
+
+function calculateCountryStrength(countryId) {
+    const country = countriesData[countryId];
+    const totalUnits = getTotalUnitsForCountry(countryId);
+    const territoryCount = country.nuts2.length;
+    const economicPower = country.coins / 100;
+    const militaryBonus = (country.military || 50) / 100;
+    
+    return (totalUnits * 2 + territoryCount + economicPower) * militaryBonus;
+}
+
+function calculateTargetAttractiveness(attackerId, targetId) {
+    const target = countriesData[targetId];
+    const attacker = countriesData[attackerId];
+    
+    let score = 0;
+    
+    // Toprak değeri
+    score += target.nuts2.length * 10;
+    
+    // Ekonomik değer
+    score += target.coins / 10;
+    
+    // Stratejik değer (büyük güçler daha çekici)
+    if (target.type === 'major_power') score += 50;
+    if (target.type === 'superpower') score += 100;
+    
+    // Zayıflık bonusu
+    const targetStrength = calculateCountryStrength(targetId);
+    const attackerStrength = calculateCountryStrength(attackerId);
+    if (attackerStrength > targetStrength) {
+        score += (attackerStrength - targetStrength) / 10;
+    }
+    
+    return score;
+}
+
+function selectBestTarget(countryId, targets) {
+    if (targets.length === 0) return null;
+    
+    // En çekici hedefi seç
+    return targets[0].id;
+}
+
+function calculateWarPriority(attackerId, targetId) {
+    return calculateTargetAttractiveness(attackerId, targetId);
+}
+
+// ============================================================================
+// Event Listeners - Gelişmiş Sistem
+// ============================================================================
+
+// Ülke bilgi modalı kapatma
+closeCountryInfoButton.addEventListener('click', () => {
+    countryInfoModal.style.display = 'none';
+});
+
+// Hükümet değiştirme modal event'leri
+document.querySelectorAll('.government-option').forEach(option => {
+    option.addEventListener('click', () => {
+        document.querySelectorAll('.government-option').forEach(opt => opt.classList.remove('selected'));
+        option.classList.add('selected');
+    });
+});
+
+document.getElementById('confirmGovernmentChange').addEventListener('click', () => {
+    const selectedOption = document.querySelector('.government-option.selected');
+    if (selectedOption && currentGovernmentChangeCountry) {
+        const govType = selectedOption.dataset.type;
+        const costs = { Democracy: 500, Monarchy: 300, Fascism: 400, Communism: 600 };
+        
+        if (changeGovernment(govType, costs[govType])) {
+            governmentChangeModal.style.display = 'none';
+            // Ülke bilgi modalını güncelle
+            if (selectedCountryForInfo === currentGovernmentChangeCountry) {
+                showCountryInfo(currentGovernmentChangeCountry);
+            }
+        }
+    }
+});
+
+document.getElementById('cancelGovernmentChange').addEventListener('click', () => {
+    governmentChangeModal.style.display = 'none';
+});
+
+// Modal dışına tıklayınca kapatma
+window.addEventListener('click', (event) => {
+    if (event.target === countryInfoModal) {
+        countryInfoModal.style.display = 'none';
+    }
+    if (event.target === governmentChangeModal) {
+        governmentChangeModal.style.display = 'none';
+    }
+});
+
+// Sağ tık menüsünü engelle (kendi context menümüz için)
+document.addEventListener('contextmenu', (e) => {
+    if (e.target.closest('#mapContainer')) {
+        e.preventDefault();
+    }
+});
+
+// Harita etkileşimini başlat
+document.addEventListener('DOMContentLoaded', () => {
+    setupMapInteraction();
+});
+
+// ============================================================================
+// Gelişmiş Komşuluk Sistemi
+// ============================================================================
+
+function findNeighboringCountries(countryId) {
+    const country = countriesData[countryId];
+    const neighbors = new Set();
+    
+    // Bu basitleştirilmiş bir yaklaşım - gerçekte SVG'den komşuluk bilgisi alınmalı
+    for (const [otherCountryId, otherCountry] of Object.entries(countriesData)) {
+        if (otherCountryId !== countryId) {
+            // Coğrafi yakınlık kontrolü (basitleştirilmiş)
+            if (areCountriesNeighbors(country, otherCountry)) {
+                neighbors.add(otherCountryId);
+            }
+        }
+    }
+    
+    return Array.from(neighbors);
+}
+
+function areCountriesNeighbors(country1, country2) {
+    // Basit komşuluk kontrolü - gerçekte daha sofistike olmalı
+    const regions1 = country1.nuts2;
+    const regions2 = country2.nuts2;
+    
+    // Avrupa ülkeleri için basit komşuluk mantığı
+    const neighboringPairs = [
+        ['USSR', 'POLAND'], ['USSR', 'FINLAND'], ['USSR', 'ROMANIA'],
+        ['GERMAN_REICH', 'POLAND'], ['GERMAN_REICH', 'CZECHOSLOVAKIA'], ['GERMAN_REICH', 'FRENCH_REPUBLIC'],
+        ['BRITISH_EMPIRE', 'FRENCH_REPUBLIC'], ['FRENCH_REPUBLIC', 'GERMAN_REICH'], ['FRENCH_REPUBLIC', 'KINGDOM_OF_ITALY'],
+        ['KINGDOM_OF_ITALY', 'GERMAN_REICH'], ['POLAND', 'CZECHOSLOVAKIA'], ['ROMANIA', 'HUNGARY'],
+        // Daha fazla komşuluk ilişkisi eklenebilir
+    ];
+    
+    const country1Id = Object.keys(countriesData).find(id => countriesData[id] === country1);
+    const country2Id = Object.keys(countriesData).find(id => countriesData[id] === country2);
+    
+    return neighboringPairs.some(pair => 
+        (pair[0] === country1Id && pair[1] === country2Id) ||
+        (pair[1] === country1Id && pair[0] === country2Id)
+    );
+}
+
+// ============================================================================
 // DOM Elementleri
 // ============================================================================
 const startScreen = document.getElementById('startScreen');
@@ -63,69 +620,153 @@ const targetCountrySelect = document.getElementById('targetCountrySelect');
 const declareWarButton = document.getElementById('declareWarButton');
 
 // ============================================================================
-// Gelişmiş Ülke Verileri - Tüm SVG Bölgeleri İçin Güncellenmiş
+// Gelişmiş Ülke Verileri - Age of History Tarzı Büyük Güçler
 // ============================================================================
 let countriesData = {
-    // Sovyet Sosyalist Cumhuriyetler Birliği (USSR)
+    // SOVYET SOSYALİST CUMHURİYETLER BİRLİĞİ - Devasa Toprak
     'USSR': { 
         name: 'Sovyet Sosyalist Cumhuriyetler Birliği', 
-        nuts2: ['EE00', 'LV00', 'LT00', 'FI13', 'FI18', 'FI19', 'FI1A', 'FI20'], // Balık ülkeleri ve Finlandiya'nın doğusu temsili
+        nuts2: [
+            // Rusya'nın Batı Bölgeleri
+            'RU1', 'RU2', 'RU3', 'RU4', 'RU5', 'RU6', 'RU7', 'RU8', 'RU9', 'RU10',
+            // Sibirya ve Uzak Doğu
+            'RU11', 'RU12', 'RU13', 'RU14', 'RU15', 'RU16', 'RU17', 'RU18', 'RU19', 'RU20',
+            // Ukrayna SSR
+            'UA01', 'UA02', 'UA03', 'UA04', 'UA05', 'UA06', 'UA07',
+            // Belarus SSR
+            'BY01', 'BY02', 'BY03', 'BY04',
+            // Baltık SSR'leri
+            'EE00', 'LV00', 'LT00',
+            // Kafkasya SSR'leri
+            'GE01', 'GE02', 'AM01', 'AZ01', 'AZ02',
+            // Orta Asya SSR'leri
+            'KZ01', 'KZ02', 'KZ03', 'UZ01', 'UZ02', 'TM01', 'KG01', 'TJ01',
+            // Moldova SSR
+            'MD01',
+            // Finlandiya'dan alınan topraklar
+            'FI13', 'FI18', 'FI19', 'FI1A', 'FI20'
+        ],
         isPlayer: false, 
         color: '#CC0000', 
-        coins: INITIAL_AI_COINS * 2, // Büyük güç
+        coins: INITIAL_AI_COINS * 3, // En büyük güç
         units: 0,
         personality: 'AGGRESSIVE',
-        capital: 'LV00', // Moskova temsili
+        capital: 'RU3', // Moskova
         era: '1936',
-        type: 'major_power'
+        type: 'superpower',
+        governmentType: 'Communist State',
+        ideology: 'Marxism-Leninism',
+        leader: 'Joseph Stalin',
+        flagUrl: 'flags/ussr.png',
+        leaderPortrait: 'leaders/stalin.png',
+        stability: 85,
+        warSupport: 70,
+        population: 170000000,
+        industry: 90,
+        military: 95
     },
     
-    // Alman Reich (Nazi Almanya)
+    // ALMAN REICH - Nazi Almanya
     'GERMAN_REICH': { 
-        name: 'Alman Reich', 
-        nuts2: ['DE11', 'DE12', 'DE13', 'DE14', 'DE21', 'DE22', 'DE23', 'DE24', 'DE25', 'DE26', 'DE27', 'DE30', 'DE42', 'DE41', 'DE50', 'DE60', 'DE71', 'DE72', 'DE73', 'DE80', 'DE91', 'DE92', 'DE93', 'DE94', 'DEA1', 'DEA2', 'DEA3', 'DEA4', 'DEA5', 'DEB1', 'DEB2', 'DEB3', 'DEC0', 'DED1', 'DED2', 'DED3', 'DEE0', 'DEF0', 'DEG0', 'AT11', 'AT12', 'AT13', 'AT21', 'AT22', 'AT31', 'AT32', 'AT33', 'AT34'], // Almanya + Avusturya (Anschluss)
+        name: 'Deutsches Reich', 
+        nuts2: [
+            // Almanya
+            'DE11', 'DE12', 'DE13', 'DE14', 'DE21', 'DE22', 'DE23', 'DE24', 'DE25', 'DE26', 'DE27', 
+            'DE30', 'DE42', 'DE41', 'DE50', 'DE60', 'DE71', 'DE72', 'DE73', 'DE80', 'DE91', 'DE92', 
+            'DE93', 'DE94', 'DEA1', 'DEA2', 'DEA3', 'DEA4', 'DEA5', 'DEB1', 'DEB2', 'DEB3', 'DEC0', 
+            'DED1', 'DED2', 'DED3', 'DEE0', 'DEF0', 'DEG0',
+            // Avusturya (Anschluss 1938)
+            'AT11', 'AT12', 'AT13', 'AT21', 'AT22', 'AT31', 'AT32', 'AT33', 'AT34',
+            // Sudetenland
+            'CZ01', 'CZ02'
+        ],
         isPlayer: false, 
         color: '#444444', 
-        coins: INITIAL_AI_COINS * 2, 
+        coins: INITIAL_AI_COINS * 2.5, 
         units: 0,
         personality: 'AGGRESSIVE',
         capital: 'DE30', // Berlin
         era: '1936',
-        type: 'major_power'
+        type: 'major_power',
+        governmentType: 'Fascist State',
+        ideology: 'National Socialism',
+        leader: 'Adolf Hitler',
+        flagUrl: 'flags/nazi_germany.png',
+        leaderPortrait: 'leaders/hitler.png',
+        stability: 90,
+        warSupport: 85,
+        population: 80000000,
+        industry: 85,
+        military: 90
     },
     
-    // Büyük Britanya İmparatorluğu
+    // BÜYÜK BRİTANYA İMPARATORLUĞU
     'BRITISH_EMPIRE': { 
-        name: 'Büyük Britanya İmparatorluğu', 
-        nuts2: ['UKC1', 'UKC2', 'UKD1', 'UKD2', 'UKD3', 'UKD4', 'UKD5', 'UKE1', 'UKE2', 'UKE3', 'UKE4', 'UKF1', 'UKF2', 'UKF3', 'UKG1', 'UKG2', 'UKG3', 'UKH1', 'UKH2', 'UKH3', 'UKI1', 'UKI2', 'UKJ1', 'UKJ2', 'UKJ3', 'UKJ4', 'UKK1', 'UKK2', 'UKK3', 'UKK4', 'UKL1', 'UKL2', 'UKM2', 'UKM3', 'UKM5', 'UKM6', 'UKN0', 'IE01', 'IE02'], // UK + İrlanda
+        name: 'British Empire', 
+        nuts2: [
+            // İngiltere
+            'UKC1', 'UKC2', 'UKD1', 'UKD2', 'UKD3', 'UKD4', 'UKD5', 'UKE1', 'UKE2', 'UKE3', 'UKE4', 
+            'UKF1', 'UKF2', 'UKF3', 'UKG1', 'UKG2', 'UKG3', 'UKH1', 'UKH2', 'UKH3', 'UKI1', 'UKI2', 
+            'UKJ1', 'UKJ2', 'UKJ3', 'UKJ4', 'UKK1', 'UKK2', 'UKK3', 'UKK4', 'UKL1', 'UKL2', 'UKM2', 
+            'UKM3', 'UKM5', 'UKM6', 'UKN0',
+            // İrlanda
+            'IE01', 'IE02'
+        ],
         isPlayer: false, 
         color: '#000080', 
-        coins: INITIAL_AI_COINS * 2, 
+        coins: INITIAL_AI_COINS * 2.5, 
         units: 0,
         personality: 'DEFENSIVE',
-        capital: 'UKI1', // Londra
+        capital: 'UKI1', // London
         era: '1936',
-        type: 'major_power'
+        type: 'major_power',
+        governmentType: 'Constitutional Monarchy',
+        ideology: 'Democracy',
+        leader: 'King George VI',
+        flagUrl: 'flags/uk.png',
+        leaderPortrait: 'leaders/george_vi.png',
+        stability: 95,
+        warSupport: 60,
+        population: 47000000,
+        industry: 80,
+        military: 85
     },
     
-    // Fransız Cumhuriyeti
+    // FRANSIZ CUMHURİYETİ
     'FRENCH_REPUBLIC': { 
-        name: 'Fransız Cumhuriyeti', 
-        nuts2: ['FR10', 'FR21', 'FR22', 'FR23', 'FR24', 'FR25', 'FR26', 'FR30', 'FR41', 'FR42', 'FR43', 'FR51', 'FR52', 'FR53', 'FR61', 'FR62', 'FR63', 'FR71', 'FR72', 'FR81', 'FR82', 'FR83', 'BE10', 'BE21', 'BE22', 'BE23', 'BE24', 'BE25', 'BE31', 'BE32', 'BE33', 'BE34', 'BE35', 'NL11', 'NL12', 'NL13', 'NL21', 'NL22', 'NL23', 'NL31', 'NL32', 'NL33', 'NL34', 'NL41', 'NL42', 'LU00'], // Fransa + Benelux
+        name: 'République française', 
+        nuts2: [
+            // Fransa
+            'FR10', 'FR21', 'FR22', 'FR23', 'FR24', 'FR25', 'FR26', 'FR30', 'FR41', 'FR42', 'FR43', 
+            'FR51', 'FR52', 'FR53', 'FR61', 'FR62', 'FR63', 'FR71', 'FR72', 'FR81', 'FR82', 'FR83'
+        ],
         isPlayer: false, 
         color: '#0066CC', 
-        coins: INITIAL_AI_COINS * 1.5, 
+        coins: INITIAL_AI_COINS * 2, 
         units: 0,
         personality: 'DEFENSIVE',
         capital: 'FR10', // Paris
         era: '1936',
-        type: 'major_power'
+        type: 'major_power',
+        governmentType: 'Republic',
+        ideology: 'Democracy',
+        leader: 'Albert Lebrun',
+        flagUrl: 'flags/france.png',
+        leaderPortrait: 'leaders/lebrun.png',
+        stability: 70,
+        warSupport: 50,
+        population: 42000000,
+        industry: 70,
+        military: 75
     },
     
-    // İtalyan Krallığı
+    // İTALYAN KRALLIĞI
     'KINGDOM_OF_ITALY': { 
-        name: 'İtalyan Krallığı', 
-        nuts2: ['ITC1', 'ITC2', 'ITC3', 'ITC4', 'ITD1', 'ITD2', 'ITD3', 'ITD4', 'ITD5', 'ITE1', 'ITE2', 'ITE3', 'ITE4', 'ITF1', 'ITF2', 'ITF3', 'ITF4', 'ITF5', 'ITF6', 'ITG1', 'ITG2'], 
+        name: 'Regno d\'Italia', 
+        nuts2: [
+            'ITC1', 'ITC2', 'ITC3', 'ITC4', 'ITD1', 'ITD2', 'ITD3', 'ITD4', 'ITD5', 
+            'ITE1', 'ITE2', 'ITE3', 'ITE4', 'ITF1', 'ITF2', 'ITF3', 'ITF4', 'ITF5', 'ITF6', 'ITG1', 'ITG2'
+        ],
         isPlayer: false, 
         color: '#008000', 
         coins: INITIAL_AI_COINS * 1.5, 
@@ -133,189 +774,449 @@ let countriesData = {
         personality: 'EXPANSIONIST',
         capital: 'ITE4', // Roma
         era: '1936',
-        type: 'major_power'
+        type: 'major_power',
+        governmentType: 'Fascist Kingdom',
+        ideology: 'Fascism',
+        leader: 'Benito Mussolini',
+        flagUrl: 'flags/italy.png',
+        leaderPortrait: 'leaders/mussolini.png',
+        stability: 80,
+        warSupport: 75,
+        population: 44000000,
+        industry: 60,
+        military: 70
     },
     
-    // Yugoslavya Krallığı
-    'YUGOSLAVIA': { 
-        name: 'Yugoslavya Krallığı', 
-        nuts2: ['HR01', 'HR02', 'HR03', 'SI01', 'SI02', 'MK00', 'BG31', 'BG32'], // Balkan bölgeleri
+    // JAPONYA İMPARATORLUĞU
+    'EMPIRE_OF_JAPAN': { 
+        name: '大日本帝国', 
+        nuts2: ['JP01', 'JP02', 'JP03', 'JP04', 'JP05'], // Sembolik Japonya bölgeleri
         isPlayer: false, 
-        color: '#6B8E23', 
-        coins: INITIAL_AI_COINS, 
+        color: '#8B0000', 
+        coins: INITIAL_AI_COINS * 2, 
         units: 0,
-        personality: 'DEFENSIVE',
-        capital: 'HR01', // Belgrad temsili
+        personality: 'AGGRESSIVE',
+        capital: 'JP01', // Tokyo
         era: '1936',
-        type: 'minor_power'
+        type: 'major_power',
+        governmentType: 'Military Empire',
+        ideology: 'Militarism',
+        leader: 'Emperor Hirohito',
+        flagUrl: 'flags/japan.png',
+        leaderPortrait: 'leaders/hirohito.png',
+        stability: 90,
+        warSupport: 80,
+        population: 70000000,
+        industry: 75,
+        military: 85
     },
     
-    // Çekoslovakya Cumhuriyeti
-    'CZECHOSLOVAKIA': { 
-        name: 'Çekoslovakya Cumhuriyeti', 
-        nuts2: ['CZ01', 'CZ02', 'CZ03', 'CZ04', 'CZ05', 'CZ06', 'CZ07', 'CZ08', 'SK01', 'SK02', 'SK03', 'SK04'], 
-        isPlayer: false, 
-        color: '#4169E1', 
-        coins: INITIAL_AI_COINS, 
-        units: 0,
-        personality: 'DEFENSIVE',
-        capital: 'CZ01', // Prag
-        era: '1936',
-        type: 'minor_power'
-    },
-    
-    // Polonya Cumhuriyeti
+    // POLONYA CUMHURİYETİ
     'POLAND': { 
-        name: 'Polonya Cumhuriyeti', 
-        nuts2: ['PL11', 'PL12', 'PL21', 'PL22', 'PL31', 'PL32', 'PL33', 'PL34', 'PL41', 'PL42', 'PL43', 'PL51', 'PL52', 'PL61', 'PL62', 'PL63'], 
+        name: 'Rzeczpospolita Polska', 
+        nuts2: ['PL11', 'PL12', 'PL21', 'PL22', 'PL31', 'PL32', 'PL33', 'PL34', 'PL41', 'PL42', 'PL43', 'PL51', 'PL52', 'PL61', 'PL62', 'PL63'],
         isPlayer: false, 
         color: '#DC143C', 
         coins: INITIAL_AI_COINS, 
         units: 0,
         personality: 'DEFENSIVE',
-        capital: 'PL12', // Varşova
+        capital: 'PL12', // Warszawa
         era: '1936',
-        type: 'minor_power'
+        type: 'minor_power',
+        governmentType: 'Republic',
+        ideology: 'Democracy',
+        leader: 'Ignacy Mościcki',
+        flagUrl: 'flags/poland.png',
+        leaderPortrait: 'leaders/moscicki.png',
+        stability: 75,
+        warSupport: 70,
+        population: 35000000,
+        industry: 40,
+        military: 55
     },
     
-    // Romanya Krallığı
+    // ÇEKOSLOVAKYA CUMHURİYETİ
+    'CZECHOSLOVAKIA': { 
+        name: 'Československá republika', 
+        nuts2: ['CZ03', 'CZ04', 'CZ05', 'CZ06', 'CZ07', 'CZ08', 'SK01', 'SK02', 'SK03', 'SK04'],
+        isPlayer: false, 
+        color: '#4169E1', 
+        coins: INITIAL_AI_COINS, 
+        units: 0,
+        personality: 'DEFENSIVE',
+        capital: 'CZ03', // Praha
+        era: '1936',
+        type: 'minor_power',
+        governmentType: 'Republic',
+        ideology: 'Democracy',
+        leader: 'Edvard Beneš',
+        flagUrl: 'flags/czechoslovakia.png',
+        leaderPortrait: 'leaders/benes.png',
+        stability: 70,
+        warSupport: 60,
+        population: 15000000,
+        industry: 50,
+        military: 45
+    },
+    
+    // ROMANYA KRALLIĞI
     'ROMANIA': { 
-        name: 'Romanya Krallığı', 
-        nuts2: ['RO11', 'RO12', 'RO21', 'RO22', 'RO31', 'RO32', 'RO41', 'RO42', 'BG33', 'BG34', 'BG41', 'BG42'], // Romanya + Güney Bulgaristan
+        name: 'Regatul României', 
+        nuts2: ['RO11', 'RO12', 'RO21', 'RO22', 'RO31', 'RO32', 'RO41', 'RO42'],
         isPlayer: false, 
         color: '#FFD700', 
         coins: INITIAL_AI_COINS, 
         units: 0,
         personality: 'BALANCED',
-        capital: 'RO32', // Bükreş
+        capital: 'RO32', // București
         era: '1936',
-        type: 'minor_power'
+        type: 'minor_power',
+        governmentType: 'Kingdom',
+        ideology: 'Authoritarianism',
+        leader: 'King Carol II',
+        flagUrl: 'flags/romania.png',
+        leaderPortrait: 'leaders/carol_ii.png',
+        stability: 65,
+        warSupport: 55,
+        population: 20000000,
+        industry: 35,
+        military: 40
     },
     
-    // Macaristan Krallığı
+    // MACARISTAN KRALLIĞI
     'HUNGARY': { 
-        name: 'Macaristan Krallığı', 
-        nuts2: ['HU10', 'HU21', 'HU22', 'HU23', 'HU31', 'HU32', 'HU33'], 
+        name: 'Magyar Királyság', 
+        nuts2: ['HU10', 'HU21', 'HU22', 'HU23', 'HU31', 'HU32', 'HU33'],
         isPlayer: false, 
         color: '#228B22', 
         coins: INITIAL_AI_COINS, 
         units: 0,
         personality: 'BALANCED',
-        capital: 'HU10', // Budapeşte
+        capital: 'HU10', // Budapest
         era: '1936',
-        type: 'minor_power'
+        type: 'minor_power',
+        governmentType: 'Kingdom',
+        ideology: 'Authoritarianism',
+        leader: 'Miklós Horthy',
+        flagUrl: 'flags/hungary.png',
+        leaderPortrait: 'leaders/horthy.png',
+        stability: 70,
+        warSupport: 60,
+        population: 9000000,
+        industry: 40,
+        military: 45
     },
     
-    // İspanya Cumhuriyeti (İç Savaş Öncesi)
-    'SPANISH_REPUBLIC': { 
-        name: 'İspanya Cumhuriyeti', 
-        nuts2: ['ES11', 'ES12', 'ES13', 'ES21', 'ES22', 'ES23', 'ES24', 'ES30', 'ES41', 'ES42', 'ES43', 'ES51', 'ES52', 'ES53', 'ES61', 'ES62', 'PT11', 'PT15', 'PT16', 'PT17', 'PT18', 'PT20'], // İspanya + Portekiz
+    // YUGOSLAVYA KRALLIĞI
+    'YUGOSLAVIA': { 
+        name: 'Kraljevina Jugoslavija', 
+        nuts2: ['HR01', 'HR02', 'HR03', 'SI01', 'SI02', 'MK00', 'BG31', 'BG32'],
         isPlayer: false, 
-        color: '#FF4500', 
+        color: '#6B8E23', 
         coins: INITIAL_AI_COINS, 
         units: 0,
-        personality: 'BALANCED',
-        capital: 'ES30', // Madrid
+        personality: 'DEFENSIVE',
+        capital: 'HR01', // Beograd
         era: '1936',
-        type: 'minor_power'
+        type: 'minor_power',
+        governmentType: 'Kingdom',
+        ideology: 'Authoritarianism',
+        leader: 'King Peter II',
+        flagUrl: 'flags/yugoslavia.png',
+        leaderPortrait: 'leaders/peter_ii.png',
+        stability: 60,
+        warSupport: 50,
+        population: 16000000,
+        industry: 30,
+        military: 40
     },
     
-    // Türkiye Cumhuriyeti
+    // BULGARİSTAN KRALLIĞI
+    'BULGARIA': { 
+        name: 'Царство България', 
+        nuts2: ['BG33', 'BG34', 'BG41', 'BG42'],
+        isPlayer: false, 
+        color: '#8FBC8F', 
+        coins: INITIAL_AI_COINS * 0.8, 
+        units: 0,
+        personality: 'BALANCED',
+        capital: 'BG34', // Sofia
+        era: '1936',
+        type: 'minor_power',
+        governmentType: 'Kingdom',
+        ideology: 'Authoritarianism',
+        leader: 'King Boris III',
+        flagUrl: 'flags/bulgaria.png',
+        leaderPortrait: 'leaders/boris_iii.png',
+        stability: 70,
+        warSupport: 55,
+        population: 6000000,
+        industry: 25,
+        military: 35
+    },
+    
+    // YUNANİSTAN KRALLIĞI
+    'GREECE': { 
+        name: 'Βασίλειον τῆς Ἑλλάδος', 
+        nuts2: ['GR11', 'GR12', 'GR13', 'GR14', 'GR21', 'GR22', 'GR23', 'GR24', 'GR25', 'GR30', 'GR41', 'GR42', 'GR43'],
+        isPlayer: false, 
+        color: '#4682B4', 
+        coins: INITIAL_AI_COINS * 0.7, 
+        units: 0,
+        personality: 'DEFENSIVE',
+        capital: 'GR30', // Athina
+        era: '1936',
+        type: 'minor_power',
+        governmentType: 'Kingdom',
+        ideology: 'Authoritarianism',
+        leader: 'King George II',
+        flagUrl: 'flags/greece.png',
+        leaderPortrait: 'leaders/george_ii.png',
+        stability: 65,
+        warSupport: 70,
+        population: 7000000,
+        industry: 20,
+        military: 35
+    },
+    
+    // TÜRKİYE CUMHURİYETİ
     'TURKEY': { 
         name: 'Türkiye Cumhuriyeti', 
-        nuts2: ['TR10', 'TR21', 'TR22', 'TR31', 'TR32', 'TR33', 'TR41', 'TR42', 'TR51', 'TR52', 'TR61', 'TR62', 'TR63', 'TR71', 'TR72', 'TR81', 'TR82', 'TR83', 'TR90', 'TRA1', 'TRA2', 'TRB1', 'TRB2', 'TRC1', 'TRC2', 'TRC3', 'GR11', 'GR12', 'GR13', 'GR14', 'GR21', 'GR22', 'GR23', 'GR24', 'GR25', 'GR30', 'GR41', 'GR42', 'GR43', 'CY00'], // Türkiye + Yunanistan + Kıbrıs
+        nuts2: ['TR10', 'TR21', 'TR22', 'TR31', 'TR32', 'TR33', 'TR41', 'TR42', 'TR51', 'TR52', 'TR61', 'TR62', 'TR63', 'TR71', 'TR72', 'TR81', 'TR82', 'TR83', 'TR90', 'TRA1', 'TRA2', 'TRB1', 'TRB2', 'TRC1', 'TRC2', 'TRC3'],
         isPlayer: false, 
-        color: '#FF0000', 
+        color: '#B22222', 
         coins: INITIAL_AI_COINS, 
         units: 0,
         personality: 'BALANCED',
         capital: 'TR10', // Ankara
         era: '1936',
-        type: 'minor_power'
+        type: 'regional_power',
+        governmentType: 'Republic',
+        ideology: 'Kemalism',
+        leader: 'Mustafa Kemal Atatürk',
+        flagUrl: 'flags/turkey.png',
+        leaderPortrait: 'leaders/ataturk.png',
+        stability: 85,
+        warSupport: 65,
+        population: 17000000,
+        industry: 35,
+        military: 50
     },
     
-    // Norveç Krallığı
-    'NORWAY': { 
-        name: 'Norveç Krallığı', 
-        nuts2: ['NO01', 'NO02', 'NO03', 'NO04', 'NO05', 'NO06', 'NO07'], 
+    // FİNLANDİYA
+    'FINLAND': { 
+        name: 'Suomen tasavalta', 
+        nuts2: ['FI11', 'FI12', 'FI14', 'FI15', 'FI16', 'FI17'],
         isPlayer: false, 
-        color: '#191970', 
-        coins: INITIAL_AI_COINS * 0.8, 
+        color: '#87CEEB', 
+        coins: INITIAL_AI_COINS * 0.6, 
         units: 0,
         personality: 'DEFENSIVE',
-        capital: 'NO01', // Oslo
+        capital: 'FI11', // Helsinki
         era: '1936',
-        type: 'minor_power'
+        type: 'minor_power',
+        governmentType: 'Republic',
+        ideology: 'Democracy',
+        leader: 'Kyösti Kallio',
+        flagUrl: 'flags/finland.png',
+        leaderPortrait: 'leaders/kallio.png',
+        stability: 80,
+        warSupport: 85,
+        population: 4000000,
+        industry: 30,
+        military: 40
     },
     
-    // İsveç Krallığı
+    // İSVEÇ KRALLIĞI
     'SWEDEN': { 
-        name: 'İsveç Krallığı', 
-        nuts2: ['SE11', 'SE12', 'SE21', 'SE22', 'SE23', 'SE31', 'SE32', 'SE33'], 
+        name: 'Konungariket Sverige', 
+        nuts2: ['SE11', 'SE12', 'SE21', 'SE22', 'SE23', 'SE31', 'SE32', 'SE33'],
         isPlayer: false, 
         color: '#FFD700', 
-        coins: INITIAL_AI_COINS, 
+        coins: INITIAL_AI_COINS * 0.8, 
         units: 0,
         personality: 'DEFENSIVE',
         capital: 'SE11', // Stockholm
         era: '1936',
-        type: 'minor_power'
+        type: 'minor_power',
+        governmentType: 'Constitutional Monarchy',
+        ideology: 'Neutrality',
+        leader: 'King Gustaf V',
+        flagUrl: 'flags/sweden.png',
+        leaderPortrait: 'leaders/gustaf_v.png',
+        stability: 90,
+        warSupport: 30,
+        population: 6000000,
+        industry: 45,
+        military: 35
     },
     
-    // Danimarka Krallığı
+    // NORVEÇ KRALLIĞI
+    'NORWAY': { 
+        name: 'Kongeriket Norge', 
+        nuts2: ['NO01', 'NO02', 'NO03', 'NO04', 'NO05', 'NO06', 'NO07'],
+        isPlayer: false, 
+        color: '#B0C4DE', 
+        coins: INITIAL_AI_COINS * 0.6, 
+        units: 0,
+        personality: 'DEFENSIVE',
+        capital: 'NO01', // Oslo
+        era: '1936',
+        type: 'minor_power',
+        governmentType: 'Constitutional Monarchy',
+        ideology: 'Democracy',
+        leader: 'King Haakon VII',
+        flagUrl: 'flags/norway.png',
+        leaderPortrait: 'leaders/haakon_vii.png',
+        stability: 85,
+        warSupport: 40,
+        population: 3000000,
+        industry: 35,
+        military: 30
+    },
+    
+    // DANİMARKA KRALLIĞI
     'DENMARK': { 
-        name: 'Danimarka Krallığı', 
-        nuts2: ['DK01', 'DK02', 'DK03', 'DK04', 'DK05'], 
+        name: 'Kongeriget Danmark', 
+        nuts2: ['DK01', 'DK02', 'DK03', 'DK04', 'DK05'],
         isPlayer: false, 
-        color: '#8B0000', 
-        coins: INITIAL_AI_COINS * 0.8, 
-        units: 0,
-        personality: 'DEFENSIVE',
-        capital: 'DK01', // Kopenhag
-        era: '1936',
-        type: 'minor_power'
-    },
-    
-    // İsviçre Konfederasyonu
-    'SWITZERLAND': { 
-        name: 'İsviçre Konfederasyonu', 
-        nuts2: ['CH01', 'CH02', 'CH03', 'CH04', 'CH05', 'CH06', 'CH07', 'LI00'], 
-        isPlayer: false, 
-        color: '#FF0000', 
-        coins: INITIAL_AI_COINS, 
-        units: 0,
-        personality: 'DEFENSIVE',
-        capital: 'CH01', // Bern
-        era: '1936',
-        type: 'minor_power'
-    },
-    
-    // İzlanda Krallığı
-    'ICELAND': { 
-        name: 'İzlanda Krallığı', 
-        nuts2: ['IS00'], 
-        isPlayer: false, 
-        color: '#4682B4', 
+        color: '#CD5C5C', 
         coins: INITIAL_AI_COINS * 0.5, 
         units: 0,
         personality: 'DEFENSIVE',
-        capital: 'IS00', // Reykjavik
+        capital: 'DK01', // København
         era: '1936',
-        type: 'minor_power'
+        type: 'minor_power',
+        governmentType: 'Constitutional Monarchy',
+        ideology: 'Democracy',
+        leader: 'King Christian X',
+        flagUrl: 'flags/denmark.png',
+        leaderPortrait: 'leaders/christian_x.png',
+        stability: 85,
+        warSupport: 25,
+        population: 4000000,
+        industry: 40,
+        military: 25
     },
     
-    // Malta
-    'MALTA': { 
-        name: 'Malta', 
-        nuts2: ['MT00'], 
+    // HOLLANDA KRALLIĞI
+    'NETHERLANDS': { 
+        name: 'Koninkrijk der Nederlanden', 
+        nuts2: ['NL11', 'NL12', 'NL13', 'NL21', 'NL22', 'NL23', 'NL31', 'NL32', 'NL33', 'NL34', 'NL41', 'NL42'],
         isPlayer: false, 
-        color: '#D2691E', 
-        coins: INITIAL_AI_COINS * 0.3, 
+        color: '#FF8C00', 
+        coins: INITIAL_AI_COINS * 0.8, 
         units: 0,
         personality: 'DEFENSIVE',
-        capital: 'MT00', // Valletta
+        capital: 'NL32', // Amsterdam
         era: '1936',
-        type: 'minor_power'
+        type: 'minor_power',
+        governmentType: 'Constitutional Monarchy',
+        ideology: 'Democracy',
+        leader: 'Queen Wilhelmina',
+        flagUrl: 'flags/netherlands.png',
+        leaderPortrait: 'leaders/wilhelmina.png',
+        stability: 80,
+        warSupport: 35,
+        population: 9000000,
+        industry: 55,
+        military: 30
+    },
+    
+    // BELÇİKA KRALLIĞI
+    'BELGIUM': { 
+        name: 'Royaume de Belgique', 
+        nuts2: ['BE10', 'BE21', 'BE22', 'BE23', 'BE24', 'BE25', 'BE31', 'BE32', 'BE33', 'BE34', 'BE35'],
+        isPlayer: false, 
+        color: '#000000', 
+        coins: INITIAL_AI_COINS * 0.7, 
+        units: 0,
+        personality: 'DEFENSIVE',
+        capital: 'BE10', // Bruxelles
+        era: '1936',
+        type: 'minor_power',
+        governmentType: 'Constitutional Monarchy',
+        ideology: 'Democracy',
+        leader: 'King Leopold III',
+        flagUrl: 'flags/belgium.png',
+        leaderPortrait: 'leaders/leopold_iii.png',
+        stability: 75,
+        warSupport: 40,
+        population: 8000000,
+        industry: 60,
+        military: 35
+    },
+    
+    // İSVİÇRE
+    'SWITZERLAND': { 
+        name: 'Schweizerische Eidgenossenschaft', 
+        nuts2: ['CH01', 'CH02', 'CH03', 'CH04', 'CH05', 'CH06', 'CH07'],
+        isPlayer: false, 
+        color: '#DC143C', 
+        coins: INITIAL_AI_COINS * 0.6, 
+        units: 0,
+        personality: 'DEFENSIVE',
+        capital: 'CH02', // Bern
+        era: '1936',
+        type: 'minor_power',
+        governmentType: 'Federal Republic',
+        ideology: 'Neutrality',
+        leader: 'Rudolf Minger',
+        flagUrl: 'flags/switzerland.png',
+        leaderPortrait: 'leaders/minger.png',
+        stability: 95,
+        warSupport: 20,
+        population: 4000000,
+        industry: 50,
+        military: 40
+    },
+    
+    // PORTEKIZ CUMHURİYETİ
+    'PORTUGAL': { 
+        name: 'República Portuguesa', 
+        nuts2: ['PT11', 'PT15', 'PT16', 'PT17', 'PT18', 'PT20', 'PT30'],
+        isPlayer: false, 
+        color: '#228B22', 
+        coins: INITIAL_AI_COINS * 0.5, 
+        units: 0,
+        personality: 'DEFENSIVE',
+        capital: 'PT17', // Lisboa
+        era: '1936',
+        type: 'minor_power',
+        governmentType: 'Authoritarian Republic',
+        ideology: 'Authoritarianism',
+        leader: 'António Salazar',
+        flagUrl: 'flags/portugal.png',
+        leaderPortrait: 'leaders/salazar.png',
+        stability: 80,
+        warSupport: 45,
+        population: 7000000,
+        industry: 25,
+        military: 30
+    },
+    
+    // İSPANYA CUMHURİYETİ
+    'SPAIN': { 
+        name: 'Segunda República Española', 
+        nuts2: ['ES11', 'ES12', 'ES13', 'ES21', 'ES22', 'ES23', 'ES24', 'ES30', 'ES41', 'ES42', 'ES43', 'ES51', 'ES52', 'ES53', 'ES61', 'ES62', 'ES70'],
+        isPlayer: false, 
+        color: '#FFD700', 
+        coins: INITIAL_AI_COINS * 0.8, 
+        units: 0,
+        personality: 'BALANCED',
+        capital: 'ES30', // Madrid
+        era: '1936',
+        type: 'regional_power',
+        governmentType: 'Republic',
+        ideology: 'Democracy',
+        leader: 'Manuel Azaña',
+        flagUrl: 'flags/spain.png',
+        leaderPortrait: 'leaders/azana.png',
+        stability: 45, // İç savaş öncesi
+        warSupport: 60,
+        population: 26000000,
+        industry: 35,
+        military: 40
     }
 };
 

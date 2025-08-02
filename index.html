@@ -145,6 +145,158 @@
         </div>
     </div>
 
+    <!-- ÜLKE BİLGİ MODALI - Age of History Tarzı -->
+    <div id="countryInfoModal" class="modal" style="display:none;">
+        <div class="modal-content" style="max-width: 900px; max-height: 90vh; overflow-y: auto;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h2 id="countryInfoTitle" style="color: #d4af37; margin: 0;">🏛️ Ülke Bilgileri</h2>
+                <button id="closeCountryInfoButton" style="background: #444; border: 1px solid #666; color: #fff; padding: 5px 15px; border-radius: 5px; cursor: pointer;">✕</button>
+            </div>
+            
+            <!-- Üst Bilgi Paneli -->
+            <div style="display: flex; gap: 20px; margin-bottom: 25px; background: rgba(0,0,0,0.3); padding: 20px; border-radius: 10px;">
+                <!-- Bayrak ve Lider -->
+                <div style="display: flex; flex-direction: column; align-items: center; min-width: 150px;">
+                    <div id="countryFlag" style="width: 120px; height: 80px; background: #333; border: 2px solid #d4af37; margin-bottom: 10px; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #888;">
+                        Bayrak
+                    </div>
+                    <div id="leaderPortrait" style="width: 100px; height: 120px; background: #333; border: 2px solid #d4af37; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #888;">
+                        Lider
+                    </div>
+                </div>
+                
+                <!-- Temel Bilgiler -->
+                <div style="flex: 1;">
+                    <h3 id="countryFullName" style="color: #d4af37; margin-top: 0;">Ülke Adı</h3>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <div>
+                            <p><strong>👑 Lider:</strong> <span id="countryLeader">-</span></p>
+                            <p><strong>🏛️ Hükümet:</strong> <span id="countryGovernment">-</span></p>
+                            <p><strong>📜 İdeoloji:</strong> <span id="countryIdeology">-</span></p>
+                            <p><strong>🏙️ Başkent:</strong> <span id="countryCapital">-</span></p>
+                        </div>
+                        <div>
+                            <p><strong>👥 Nüfus:</strong> <span id="countryPopulation">-</span></p>
+                            <p><strong>💰 Hazine:</strong> <span id="countryCoins">-</span> Altın</p>
+                            <p><strong>⚔️ Birimler:</strong> <span id="countryUnits">-</span></p>
+                            <p><strong>📅 Era:</strong> <span id="countryEra">-</span></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- İstatistikler -->
+            <div style="background: rgba(0,0,0,0.3); padding: 20px; border-radius: 10px; margin-bottom: 20px;">
+                <h3 style="color: #d4af37; margin-top: 0;">📊 Ulusal İstatistikler</h3>
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px;">
+                    <div>
+                        <p><strong>🏛️ Stabilite:</strong></p>
+                        <div class="stat-bar">
+                            <div id="stabilityBar" class="stat-fill" style="background: #4CAF50;"></div>
+                        </div>
+                        <span id="stabilityValue">0%</span>
+                    </div>
+                    <div>
+                        <p><strong>⚔️ Savaş Desteği:</strong></p>
+                        <div class="stat-bar">
+                            <div id="warSupportBar" class="stat-fill" style="background: #FF5722;"></div>
+                        </div>
+                        <span id="warSupportValue">0%</span>
+                    </div>
+                    <div>
+                        <p><strong>🏭 Endüstri:</strong></p>
+                        <div class="stat-bar">
+                            <div id="industryBar" class="stat-fill" style="background: #FF9800;"></div>
+                        </div>
+                        <span id="industryValue">0%</span>
+                    </div>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 15px;">
+                    <div>
+                        <p><strong>🎖️ Askeri Güç:</strong></p>
+                        <div class="stat-bar">
+                            <div id="militaryBar" class="stat-fill" style="background: #9C27B0;"></div>
+                        </div>
+                        <span id="militaryValue">0%</span>
+                    </div>
+                    <div>
+                        <p><strong>🌍 Güç Seviyesi:</strong></p>
+                        <span id="powerLevel" style="font-size: 18px; font-weight: bold; color: #d4af37;">-</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Diplomasi ve Eylemler -->
+            <div style="background: rgba(0,0,0,0.3); padding: 20px; border-radius: 10px; margin-bottom: 20px;">
+                <h3 style="color: #d4af37; margin-top: 0;">🤝 Diplomasi & Eylemler</h3>
+                <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+                    <button id="declareWarFromInfo" class="country-action-btn" style="background: linear-gradient(145deg, #8b0000, #a00000);">
+                        ⚔️ Savaş İlan Et
+                    </button>
+                    <button id="sendDiplomatFromInfo" class="country-action-btn" style="background: linear-gradient(145deg, #1565C0, #1976D2);">
+                        🤝 Diplomat Gönder
+                    </button>
+                    <button id="tradeWithCountry" class="country-action-btn" style="background: linear-gradient(145deg, #388E3C, #4CAF50);">
+                        💰 Ticaret Yap
+                    </button>
+                    <button id="changeGovernmentType" class="country-action-btn" style="background: linear-gradient(145deg, #7B1FA2, #9C27B0);">
+                        🏛️ Hükümeti Değiştir
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Topraklar -->
+            <div style="background: rgba(0,0,0,0.3); padding: 20px; border-radius: 10px;">
+                <h3 style="color: #d4af37; margin-top: 0;">🗺️ Kontrol Edilen Topraklar</h3>
+                <div id="countryTerritories" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; max-height: 200px; overflow-y: auto;">
+                    <!-- Topraklar buraya dinamik olarak eklenecek -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- HÜKÜMET DEĞİŞTİRME MODALI -->
+    <div id="governmentChangeModal" class="modal" style="display:none;">
+        <div class="modal-content" style="max-width: 600px;">
+            <h2 style="color: #d4af37; text-align: center;">🏛️ Hükümet Sistemi Değişikliği</h2>
+            <p style="text-align: center; color: #cccccc; margin-bottom: 25px;">
+                Ülkenizin yönetim biçimini değiştirin. Her sistem farklı avantajlar sunar.
+            </p>
+            
+            <div id="governmentOptions" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <div class="government-option" data-type="Democracy">
+                    <h4>🗳️ Demokrasi</h4>
+                    <p>Stabilite: +15, Savaş Desteği: -10</p>
+                    <p>Maliyet: 500 Altın</p>
+                </div>
+                <div class="government-option" data-type="Monarchy">
+                    <h4>👑 Monarşi</h4>
+                    <p>Stabilite: +10, Diplomasi: +5</p>
+                    <p>Maliyet: 300 Altın</p>
+                </div>
+                <div class="government-option" data-type="Fascism">
+                    <h4>⚡ Faşizm</h4>
+                    <p>Askeri Güç: +20, Stabilite: -5</p>
+                    <p>Maliyet: 400 Altın</p>
+                </div>
+                <div class="government-option" data-type="Communism">
+                    <h4>☭ Komünizm</h4>
+                    <p>Endüstri: +15, Ekonomi: +10</p>
+                    <p>Maliyet: 600 Altın</p>
+                </div>
+            </div>
+            
+            <div style="display: flex; gap: 15px; justify-content: center; margin-top: 25px;">
+                <button id="confirmGovernmentChange" class="country-action-btn" style="background: linear-gradient(145deg, #4CAF50, #66BB6A);">
+                    ✅ Değişikliği Onayla
+                </button>
+                <button id="cancelGovernmentChange" class="country-action-btn" style="background: linear-gradient(145deg, #757575, #9E9E9E);">
+                    ❌ İptal Et
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script src="script.js"></script>
 </body>
 </html>

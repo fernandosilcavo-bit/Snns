@@ -525,3 +525,466 @@ select:focus {
     animation: glow 2s infinite;
 }
 
+/* ============================================================================
+   ENHANCED MAP STYLING - Larger and More Detailed
+   ============================================================================ */
+
+#mapContainer {
+    width: 100%;
+    height: 70vh; /* Increased from 60vh */
+    position: relative;
+    border: 3px solid #d4af37;
+    border-radius: 15px;
+    overflow: hidden;
+    background: linear-gradient(135deg, #1a1a2e, #16213e);
+    box-shadow: 
+        0 0 30px rgba(212, 175, 55, 0.3),
+        inset 0 0 20px rgba(0,0,0,0.5);
+}
+
+#gameMapObject {
+    width: 120%; /* Enlarged map */
+    height: 120%;
+    transform: translate(-8%, -8%); /* Center the enlarged map */
+    transition: transform 0.3s ease;
+}
+
+#gameMapObject:hover {
+    transform: translate(-8%, -8%) scale(1.05);
+}
+
+/* ============================================================================
+   COUNTRY INFO MODAL STYLING
+   ============================================================================ */
+
+.stat-bar {
+    width: 100%;
+    height: 20px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 10px;
+    overflow: hidden;
+    margin: 5px 0;
+    border: 1px solid rgba(212, 175, 55, 0.3);
+}
+
+.stat-fill {
+    height: 100%;
+    transition: width 0.8s ease-in-out;
+    border-radius: 10px;
+    position: relative;
+}
+
+.stat-fill::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+}
+
+.country-action-btn {
+    padding: 12px 20px;
+    border: 2px solid rgba(212, 175, 55, 0.5);
+    border-radius: 8px;
+    color: #ffffff;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: 'Cinzel', serif;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.7);
+    position: relative;
+    overflow: hidden;
+}
+
+.country-action-btn:hover {
+    border-color: #d4af37;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(212, 175, 55, 0.3);
+}
+
+.country-action-btn:active {
+    transform: translateY(0);
+}
+
+.country-action-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transition: left 0.5s;
+}
+
+.country-action-btn:hover::before {
+    left: 100%;
+}
+
+/* ============================================================================
+   GOVERNMENT SYSTEM STYLING
+   ============================================================================ */
+
+.government-option {
+    background: linear-gradient(145deg, #2a2a4a, #1a1a3a);
+    border: 2px solid rgba(212, 175, 55, 0.3);
+    border-radius: 10px;
+    padding: 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.government-option:hover {
+    border-color: #d4af37;
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(212, 175, 55, 0.2);
+}
+
+.government-option.selected {
+    border-color: #d4af37;
+    background: linear-gradient(145deg, #3a3a5a, #2a2a4a);
+    box-shadow: 0 0 20px rgba(212, 175, 55, 0.4);
+}
+
+.government-option h4 {
+    color: #d4af37;
+    margin: 0 0 10px 0;
+    font-family: 'Cinzel', serif;
+    font-size: 1.2em;
+}
+
+.government-option p {
+    color: #cccccc;
+    margin: 5px 0;
+    font-size: 0.9em;
+}
+
+/* ============================================================================
+   ENHANCED MODAL STYLING
+   ============================================================================ */
+
+.modal {
+    position: fixed;
+    z-index: 10000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(5px);
+    animation: modalFadeIn 0.3s ease;
+}
+
+@keyframes modalFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.modal-content {
+    background: linear-gradient(135deg, #1a1a2e, #16213e);
+    margin: 2% auto;
+    padding: 30px;
+    border: 3px solid #d4af37;
+    border-radius: 15px;
+    width: 80%;
+    max-width: 800px;
+    color: #ffffff;
+    font-family: 'Crimson Text', serif;
+    box-shadow: 
+        0 0 50px rgba(212, 175, 55, 0.3),
+        inset 0 0 30px rgba(0,0,0,0.3);
+    animation: modalSlideIn 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+@keyframes modalSlideIn {
+    from { 
+        opacity: 0;
+        transform: translateY(-50px);
+    }
+    to { 
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.modal-content::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: 
+        radial-gradient(circle at 20% 20%, rgba(212, 175, 55, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(212, 175, 55, 0.05) 0%, transparent 50%);
+    pointer-events: none;
+}
+
+/* ============================================================================
+   ENHANCED HEADER AND UI
+   ============================================================================ */
+
+#header {
+    background: linear-gradient(135deg, #1a1a2e, #16213e);
+    border: 2px solid #d4af37;
+    border-radius: 15px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 5px 20px rgba(212, 175, 55, 0.2);
+    position: relative;
+    overflow: hidden;
+}
+
+#header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(212, 175, 55, 0.1), transparent);
+    animation: headerShine 3s infinite;
+}
+
+@keyframes headerShine {
+    0% { left: -100%; }
+    100% { left: 100%; }
+}
+
+#gameInfo {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    margin-top: 15px;
+}
+
+#gameInfo p {
+    background: rgba(0,0,0,0.3);
+    padding: 10px 15px;
+    border-radius: 8px;
+    border: 1px solid rgba(212, 175, 55, 0.3);
+    margin: 0;
+    font-weight: bold;
+    text-align: center;
+}
+
+/* ============================================================================
+   ENHANCED CONTROLS PANEL
+   ============================================================================ */
+
+#controls {
+    background: linear-gradient(135deg, #1a1a2e, #16213e);
+    border: 2px solid #d4af37;
+    border-radius: 15px;
+    padding: 25px;
+    box-shadow: 0 5px 20px rgba(212, 175, 55, 0.2);
+}
+
+.control-group {
+    background: rgba(0,0,0,0.3);
+    border: 1px solid rgba(212, 175, 55, 0.3);
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 20px;
+    transition: all 0.3s ease;
+}
+
+.control-group:hover {
+    border-color: rgba(212, 175, 55, 0.6);
+    box-shadow: 0 3px 15px rgba(212, 175, 55, 0.1);
+}
+
+.control-group h4 {
+    color: #d4af37;
+    margin-top: 0;
+    font-family: 'Cinzel', serif;
+    text-align: center;
+    font-size: 1.3em;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+}
+
+/* ============================================================================
+   ENHANCED BUTTONS
+   ============================================================================ */
+
+button {
+    background: linear-gradient(145deg, #2a2a4a, #1a1a3a);
+    border: 2px solid rgba(212, 175, 55, 0.5);
+    border-radius: 10px;
+    color: #ffffff;
+    padding: 15px 25px;
+    font-size: 1em;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: 'Cinzel', serif;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.7);
+    position: relative;
+    overflow: hidden;
+}
+
+button:hover {
+    border-color: #d4af37;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 20px rgba(212, 175, 55, 0.3);
+}
+
+button:active {
+    transform: translateY(0);
+}
+
+button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transition: left 0.5s;
+}
+
+button:hover::before {
+    left: 100%;
+}
+
+/* ============================================================================
+   ENHANCED NOTIFICATIONS
+   ============================================================================ */
+
+#notifications {
+    background: linear-gradient(135deg, #1a1a2e, #16213e);
+    border: 2px solid #d4af37;
+    border-radius: 15px;
+    padding: 20px;
+    box-shadow: 0 5px 20px rgba(212, 175, 55, 0.2);
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+#notificationList {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+#notificationList li {
+    background: rgba(0,0,0,0.3);
+    border: 1px solid rgba(212, 175, 55, 0.3);
+    border-radius: 8px;
+    padding: 12px 15px;
+    margin-bottom: 10px;
+    animation: notificationSlide 0.5s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+@keyframes notificationSlide {
+    from {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+#notificationList li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: #d4af37;
+}
+
+/* ============================================================================
+   TERRITORY STYLING
+   ============================================================================ */
+
+.territory-item {
+    background: rgba(0,0,0,0.4);
+    border: 1px solid rgba(212, 175, 55, 0.4);
+    border-radius: 6px;
+    padding: 8px 12px;
+    font-size: 0.9em;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.territory-item:hover {
+    border-color: #d4af37;
+    background: rgba(212, 175, 55, 0.1);
+}
+
+/* ============================================================================
+   POWER LEVEL INDICATORS
+   ============================================================================ */
+
+.power-superpower { color: #FF0000; text-shadow: 0 0 10px #FF0000; }
+.power-major_power { color: #FF8C00; text-shadow: 0 0 8px #FF8C00; }
+.power-regional_power { color: #FFD700; text-shadow: 0 0 6px #FFD700; }
+.power-minor_power { color: #90EE90; text-shadow: 0 0 4px #90EE90; }
+
+/* ============================================================================
+   RESPONSIVE DESIGN
+   ============================================================================ */
+
+@media (max-width: 1200px) {
+    .modal-content {
+        width: 95%;
+        margin: 1% auto;
+        padding: 20px;
+    }
+    
+    #mapContainer {
+        height: 60vh;
+    }
+    
+    #gameInfo {
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    }
+}
+
+@media (max-width: 768px) {
+    .modal-content {
+        width: 98%;
+        padding: 15px;
+    }
+    
+    #mapContainer {
+        height: 50vh;
+    }
+    
+    .country-action-btn {
+        padding: 8px 12px;
+        font-size: 0.9em;
+    }
+    
+    #governmentOptions {
+        grid-template-columns: 1fr;
+    }
+}
+
